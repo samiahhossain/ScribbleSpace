@@ -1,11 +1,3 @@
-//TO DO:
-//- add cursor to the end of the text? Does on mobile but not web
-//- the ... when the note is too long?
-//- expand the textbox when you add more in the edit screen? Does on mobile but not web
-//- understand and alter the code while keeping the functionality
-//- comment the code
-//- commit to git
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
