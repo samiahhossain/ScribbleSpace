@@ -18,8 +18,8 @@ function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const { data: notes, error, isLoading } = useSearchNotesQuery(search);
 
-  // Add a default note if no notes are present, gets deleted after adding new notes added. 
-  const allNotes = (notes && notes.length > 0) ? notes : [{ id: '1', title: 'Example', content: 'This is how a note looks like. Do not edit. Press the blue button in the bottom right corner to create new note and remove this one.' }];
+  // Add a default note if no notes are present, gets deleted after new notes added
+  const allNotes = (notes && notes.length > 0) ? notes : [{ id: '1', title: 'NOT A NOTE', content: 'This is how a note looks like.  Do not edit. Press the blue button in the bottom right corner to create new note and have this one removed.' }];
 
   // For rendering each note
   const renderItem = ({ item }) => (
@@ -33,7 +33,7 @@ function HomeScreen({ navigation }) {
   );
 
   if (isLoading) return <ActivityIndicator size="large" color="#0000ff" />; // Loading indicator
-  if (error) return <Text>Error loading notes: {error.message}</Text>; // Error
+
 
   return (
     <View style={tw`flex-1 bg-purple-400`}>
@@ -171,7 +171,7 @@ export default function App() {
             name="Notes"
             component={HomeScreen}
             options={{
-              headerStyle: tw`${isDarkMode ? 'bg-gray-800' : 'bg-purple-300'}`,
+              headerStyle: tw`${isDarkMode ? 'bg-purple-900' : 'bg-purple-300'}`,
               headerTintColor: '#fff',
               headerTitleStyle: tw`font-bold`,
               headerTitleAlign: 'center',
@@ -182,7 +182,7 @@ export default function App() {
             name="Edit"
             component={EditScreen}
             options={{
-              headerStyle: tw`${isDarkMode ? 'bg-gray-800' : 'bg-purple-300'}`,
+              headerStyle: tw`${isDarkMode ? 'bg-purple-900' : 'bg-purple-300'}`,
               headerTintColor: '#fff',
               headerTitleStyle: tw`font-bold`,
             }}
