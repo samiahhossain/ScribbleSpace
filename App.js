@@ -18,8 +18,8 @@ function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const { data: notes, error, isLoading } = useSearchNotesQuery(search);
 
-  // Add a default note if no notes are present, gets deleted after adding new
-  const allNotes = (notes && notes.length > 0) ? notes : [{ id: '1', title: 'Example', content: 'This is how a note looks like.' }];
+  // Add a default note if no notes are present, gets deleted after adding new notes added. 
+  const allNotes = (notes && notes.length > 0) ? notes : [{ id: '1', title: 'Example', content: 'This is how a note looks like. Do not edit. Press the blue button in the bottom right corner to create new note and remove this one.' }];
 
   // For rendering each note
   const renderItem = ({ item }) => (
