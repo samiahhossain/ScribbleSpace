@@ -1,4 +1,4 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import uuid from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -10,30 +10,26 @@ export const dbApi = createApi({
     fetchNotes: build.query({
       async queryFn() {
         const serializedNotes = await AsyncStorage.getItem('notes');
-        const notes = JSON.parse(serializedNotes);
-
-        return { data: [notes] }
+        const notes = JSON.parse(serializedNotes) || [];
+        return { data: notes };
       },
       providesTags: (result) => ['Notes']
     }),
     searchNotes: build.query({
       async queryFn(searchString) {
         const serializedNotes = await AsyncStorage.getItem('notes');
-
-        const notes = JSON.parse(serializedNotes);
-        
-        if (searchString == "") { 
-          return { data: notes }
+        const notes = JSON.parse(serializedNotes) || [];
+        if (searchString === "") {
+          return { data: notes };
         } else {
           const filteredNotes = notes.filter(note => {
             const { title, content } = note;
             const s = searchString.toLowerCase();
-            return title.toLowerCase().indexOf(s) !== -1 || content.toLowerCase().indexOf(s) !== -1;
+            return title.toLowerCase().includes(s) || content.toLowerCase().includes(s);
           });
-
-          return { data: filteredNotes || [] }
+          return { data: filteredNotes };
         }
-      }, 
+      },
       providesTags: (result) => ['Notes']
     }),
     addNote: build.mutation({
@@ -43,7 +39,7 @@ export const dbApi = createApi({
         note.id = uuid.v4();
         notes.unshift(note);
         await AsyncStorage.setItem('notes', JSON.stringify(notes));
-        return { data: note }
+        return { data: note };
       },
       invalidatesTags: ['Notes'],
     }),
@@ -68,11 +64,11 @@ export const dbApi = createApi({
           return n;
         });
         await AsyncStorage.setItem('notes', JSON.stringify(updatedNotes));
-        return { data: note }
+        return { data: note };
       },
       invalidatesTags: ['Notes'],
     }),
   }),
-})
+});
 
-export const { useFetchNotesQuery, useSearchNotesQuery, useAddNoteMutation, useUpdateNoteMutation, useDeleteNoteMutation } = dbApi
+export const { useFetchNotesQuery, useSearchNotesQuery, useAddNoteMutation, useUpdateNoteMutation, useDeleteNoteMutation } = dbApi;

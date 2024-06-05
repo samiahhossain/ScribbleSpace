@@ -16,10 +16,7 @@ import {
 // Home Screen
 function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
-  const { data: notes, error, isLoading } = useSearchNotesQuery(search);
-
-  // Add a default note if no notes are present, gets deleted after new notes added
-  const allNotes = (notes && notes.length > 0) ? notes : [{ id: '1', title: 'NOT A NOTE', content: 'This is how a note looks like.  Do not edit. Press the blue button in the bottom right corner to create new note and have this one removed.' }];
+  const { data: notes = [], error, isLoading } = useSearchNotesQuery(search);
 
   // For rendering each note
   const renderItem = ({ item }) => (
@@ -33,7 +30,7 @@ function HomeScreen({ navigation }) {
   );
 
   if (isLoading) return <ActivityIndicator size="large" color="#0000ff" />; // Loading indicator
-
+  if (error) return <Text>Error loading notes: {error.message}</Text>; // Error
 
   return (
     <View style={tw`flex-1 bg-purple-400`}>
@@ -46,7 +43,7 @@ function HomeScreen({ navigation }) {
       />
       {/* Notes grid */}
       <MasonryList
-        data={allNotes}
+        data={notes}
         numColumns={2}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -67,7 +64,7 @@ function EditScreen({ route, navigation }) {
   const { note: initialNote } = route.params;
   const [note, setNote] = useState(initialNote);
   const contentInputRef = useRef(null);
-  const [addNote, { data: addNoteData, error: addError }] = useAddNoteMutation();
+  const [addNote, { error: addError }] = useAddNoteMutation();
   const [updateNote, { error: updateError }] = useUpdateNoteMutation();
   const [deleteNote, { error: deleteError }] = useDeleteNoteMutation();
 
