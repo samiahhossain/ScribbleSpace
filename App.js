@@ -16,9 +16,12 @@ import {
 // Home Screen
 function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
-  const { data: notes = [], error, isLoading } = useSearchNotesQuery(search);
+  const { data: notes, error, isLoading } = useSearchNotesQuery(search);
 
-  //For rendering each note
+  // Add a default note if no notes are present, gets deleted after adding new
+  const allNotes = (notes && notes.length > 0) ? notes : [{ id: '1', title: 'Example', content: 'This is how a note looks like.' }];
+
+  // For rendering each note
   const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('Edit', { note: item })}
@@ -29,8 +32,8 @@ function HomeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  if (isLoading) return <ActivityIndicator size="large" color="#0000ff" />; //Loading indicator
-  if (error) return <Text>Error loading notes: {error.message}</Text>; //Error
+  if (isLoading) return <ActivityIndicator size="large" color="#0000ff" />; // Loading indicator
+  if (error) return <Text>Error loading notes: {error.message}</Text>; // Error
 
   return (
     <View style={tw`flex-1 bg-purple-400`}>
@@ -43,7 +46,7 @@ function HomeScreen({ navigation }) {
       />
       {/* Notes grid */}
       <MasonryList
-        data={notes}
+        data={allNotes}
         numColumns={2}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -68,12 +71,12 @@ function EditScreen({ route, navigation }) {
   const [updateNote, { error: updateError }] = useUpdateNoteMutation();
   const [deleteNote, { error: deleteError }] = useDeleteNoteMutation();
 
-  //Header title on edit screen is note title
+  // Header title on edit screen is note title
   useEffect(() => {
     navigation.setOptions({ title: note.title || 'New Note' });
   }, [navigation, note.title]);
 
-  //Save the note
+  // Save the note
   useEffect(() => {
     const saveNote = async () => {
       if (note.id) {
@@ -98,14 +101,14 @@ function EditScreen({ route, navigation }) {
     return () => clearTimeout(timeoutId);
   }, [note, addNote, updateNote, navigation]);
 
-  //Focus on note content when opened
+  // Focus on note content when opened
   useEffect(() => {
     if (contentInputRef.current) {
       contentInputRef.current.focus();
     }
   }, []);
 
-  //Delete action
+  // Delete action
   const handleDelete = async () => {
     if (note.id) {
       await deleteNote({
@@ -150,7 +153,7 @@ function EditScreen({ route, navigation }) {
 // Main App Component
 const Stack = createNativeStackNavigator();
 
-//Dark mode toggle functionality
+// Dark mode toggle functionality
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   useDeviceContext(tw);
@@ -186,7 +189,6 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-      {/* Dark mode toggle */}
       <TouchableOpacity
         onPress={toggleDarkMode}
         style={tw`bg-gray-600 rounded-full absolute top-2.5 right-5 w-10 h-10 items-center justify-center`}
