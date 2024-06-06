@@ -13,7 +13,7 @@ export const dbApi = createApi({
         const notes = JSON.parse(serializedNotes) || [];
         return { data: notes };
       },
-      providesTags: (result) => ['Notes']
+      providesTags: (result) => ['Notes'],
     }),
     searchNotes: build.query({
       async queryFn(searchString) {
@@ -30,7 +30,7 @@ export const dbApi = createApi({
           return { data: filteredNotes };
         }
       },
-      providesTags: (result) => ['Notes']
+      providesTags: (result) => ['Notes'],
     }),
     addNote: build.mutation({
       async queryFn(note) {
@@ -68,7 +68,21 @@ export const dbApi = createApi({
       },
       invalidatesTags: ['Notes'],
     }),
+    deleteAllNotes: build.mutation({
+      async queryFn() {
+        await AsyncStorage.setItem('notes', JSON.stringify([]));
+        return { data: [] };
+      },
+      invalidatesTags: ['Notes'],
+    }),
   }),
 });
 
-export const { useFetchNotesQuery, useSearchNotesQuery, useAddNoteMutation, useUpdateNoteMutation, useDeleteNoteMutation } = dbApi;
+export const { 
+  useFetchNotesQuery, 
+  useSearchNotesQuery, 
+  useAddNoteMutation, 
+  useUpdateNoteMutation, 
+  useDeleteNoteMutation, 
+  useDeleteAllNotesMutation 
+} = dbApi;

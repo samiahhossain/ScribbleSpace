@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, TextInput, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, ActivityIndicator, Modal, Button } from 'react-native';
 import tw, { useDeviceContext } from 'twrnc';
 import MasonryList from '@react-native-seoul/masonry-list';
 import { store } from './store';
@@ -10,35 +10,44 @@ import {
   useSearchNotesQuery,
   useAddNoteMutation,
   useUpdateNoteMutation,
-  useDeleteNoteMutation
+  useDeleteNoteMutation,
+  useDeleteAllNotesMutation,
 } from './db';
 
 // Home Screen
 function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const { data: notes = [], error, isLoading } = useSearchNotesQuery(search);
+  const [deleteAllNotes] = useDeleteAllNotesMutation();
+  const [modalVisible, setModalVisible] = useState(false);
 
   // For rendering each note
   const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('Edit', { note: item })}
-      // appearance of note
-      style={tw`w-[95%] mb-1 mx-auto bg-purple-300 rounded-sm px-1`}
+      style={tw`w-[95%] mb-1 mx-auto bg-gray-600 rounded-sm px-1`}
     >
-      <Text style={tw`text-lg font-bold`}>{item.title}</Text>
-      <Text>{item.content}</Text>
+      <Text style={tw`text-lg text-white font-bold`}>{item.title}</Text>
+      <Text style={tw`text-white`}>{item.content}</Text>
     </TouchableOpacity>
   );
 
   if (isLoading) return <ActivityIndicator size="large" color="#0000ff" />; // Loading indicator
   if (error) return <Text>Error loading notes: {error.message}</Text>; // Error
 
+  // Handle "Clear All" button press
+  const handleClearAll = async () => {
+    setModalVisible(false);
+    await deleteAllNotes();
+  };
+
   return (
-    <View style={tw`flex-1 bg-purple-400`}>
+    <View style={tw`flex-1 bg-gray-950`}>
       {/* Search bar */}
       <TextInput
-        style={tw`p-2 m-2 bg-white rounded`}
+        style={tw`p-2 m-2 bg-gray-600 text-white rounded`}
         placeholder="Search Notes"
+        placeholderTextColor="white"
         value={search}
         onChangeText={setSearch}
       />
@@ -56,6 +65,30 @@ function HomeScreen({ navigation }) {
       >
         <Text style={tw`text-white text-3xl`}>+</Text>
       </TouchableOpacity>
+      {/* Clear all button */}
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        style={tw`bg-red-500 rounded-full absolute bottom-8 left-8 w-12 h-12 items-center justify-center`}
+      >
+        <Text style={tw`text-white text-3xl`}>🗑️</Text>
+      </TouchableOpacity>
+      {/* Confirmation box */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`w-80 p-5 bg-white rounded`}>
+            <Text style={tw`text-lg mb-4`}>Are you sure you want to delete all notes?</Text>
+            <View style={tw`flex-row justify-end`}>
+              <Button title="Cancel" onPress={() => setModalVisible(false)} style={tw`mr-4`} />
+              <Button title="Yes" onPress={handleClearAll} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -77,14 +110,12 @@ function EditScreen({ route, navigation }) {
   // Save the note
   useEffect(() => {
     const saveNote = async () => {
-      // With existing notes
       if (note.id) {
         await updateNote({
           id: note.id,
           title: note.title,
           content: note.content,
         });
-      // With new notes
       } else {
         const result = await addNote({
           title: note.title,
@@ -119,28 +150,26 @@ function EditScreen({ route, navigation }) {
   };
 
   return (
-    // Background style
-    <View style={tw`flex-1 bg-purple-400 p-4`}> 
+    <View style={tw`flex-1 bg-gray-950 p-4`}> 
       {addError && <Text>Error adding note: {addError.message}</Text>}
       {updateError && <Text>Error updating note: {updateError.message}</Text>}
       {deleteError && <Text>Error deleting note: {deleteError.message}</Text>}
-      {/* Title bar */}
       <TextInput
-        style={tw`p-2 mb-4 bg-white rounded`}
+        style={tw`p-2 mb-4 bg-gray-600 text-white rounded`}
         placeholder="Title"
+        placeholderTextColor="white"
         value={note.title}
         onChangeText={(text) => setNote((prev) => ({ ...prev, title: text }))}
       />
-      {/* Note content section */}
       <TextInput
-        style={tw`p-2 bg-white rounded`}
+        style={tw`p-2 bg-gray-600 text-white rounded`}
         placeholder="Content"
+        placeholderTextColor="white"
         multiline
         value={note.content}
         onChangeText={(text) => setNote((prev) => ({ ...prev, content: text }))}
         ref={contentInputRef}
       />
-      {/* Delete button */}
       <TouchableOpacity
         onPress={handleDelete}
         style={tw`bg-slate-500 rounded-full absolute top-8 right-8 w-12 h-12 items-center justify-center`}
@@ -155,48 +184,35 @@ const Stack = createNativeStackNavigator();
 
 // Main App Component
 export default function App() {
-  // Dark mode toggle functionality
-  const [isDarkMode, setIsDarkMode] = useState(false);
   useDeviceContext(tw);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
 
   return (
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
-          {/* Main header */}
           <Stack.Screen
             name="Notes"
             component={HomeScreen}
             options={{
-              headerStyle: tw`${isDarkMode ? 'bg-purple-900' : 'bg-purple-300'}`,
+              headerStyle: tw`bg-gray-950`,
               headerTintColor: '#fff',
               headerTitleStyle: tw`font-bold`,
               headerTitleAlign: 'center',
+              headerShadowVisible: false,
             }}
           />
-          {/* Edit screen header */}
           <Stack.Screen
             name="Edit"
             component={EditScreen}
             options={{
-              headerStyle: tw`${isDarkMode ? 'bg-purple-900' : 'bg-purple-300'}`,
+              headerStyle: tw`bg-gray-950`,
               headerTintColor: '#fff',
               headerTitleStyle: tw`font-bold`,
+              headerShadowVisible: false,
             }}
           />
         </Stack.Navigator>
       </NavigationContainer>
-      {/* Dark mode toggle */}
-      <TouchableOpacity
-        onPress={toggleDarkMode}
-        style={tw`bg-gray-600 rounded-full absolute bottom-8 left-8 w-10 h-10 items-center justify-center`}
-      >
-        <Text style={tw`text-white text-3xl`}>{isDarkMode ? '🌙' : '☀️'}</Text>
-      </TouchableOpacity>
     </Provider>
   );
 }
