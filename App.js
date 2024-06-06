@@ -22,6 +22,7 @@ function HomeScreen({ navigation }) {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('Edit', { note: item })}
+      // appearance of note
       style={tw`w-[95%] mb-1 mx-auto bg-purple-300 rounded-sm px-1`}
     >
       <Text style={tw`text-lg font-bold`}>{item.title}</Text>
@@ -76,12 +77,14 @@ function EditScreen({ route, navigation }) {
   // Save the note
   useEffect(() => {
     const saveNote = async () => {
+      // With existing notes
       if (note.id) {
         await updateNote({
           id: note.id,
           title: note.title,
           content: note.content,
         });
+      // With new notes
       } else {
         const result = await addNote({
           title: note.title,
@@ -116,7 +119,8 @@ function EditScreen({ route, navigation }) {
   };
 
   return (
-    <View style={tw`flex-1 bg-purple-400 p-4`}>
+    // Background style
+    <View style={tw`flex-1 bg-purple-400 p-4`}> 
       {addError && <Text>Error adding note: {addError.message}</Text>}
       {updateError && <Text>Error updating note: {updateError.message}</Text>}
       {deleteError && <Text>Error deleting note: {deleteError.message}</Text>}
@@ -147,11 +151,11 @@ function EditScreen({ route, navigation }) {
   );
 }
 
-// Main App Component
 const Stack = createNativeStackNavigator();
 
-// Dark mode toggle functionality
+// Main App Component
 export default function App() {
+  // Dark mode toggle functionality
   const [isDarkMode, setIsDarkMode] = useState(false);
   useDeviceContext(tw);
 
@@ -186,9 +190,10 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      {/* Dark mode toggle */}
       <TouchableOpacity
         onPress={toggleDarkMode}
-        style={tw`bg-gray-600 rounded-full absolute top-2.5 right-5 w-10 h-10 items-center justify-center`}
+        style={tw`bg-gray-600 rounded-full absolute bottom-8 left-8 w-10 h-10 items-center justify-center`}
       >
         <Text style={tw`text-white text-3xl`}>{isDarkMode ? '🌙' : '☀️'}</Text>
       </TouchableOpacity>
