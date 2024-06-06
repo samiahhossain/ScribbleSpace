@@ -35,7 +35,7 @@ function HomeScreen({ navigation }) {
   if (isLoading) return <ActivityIndicator size="large" color="#0000ff" />; // Loading indicator
   if (error) return <Text>Error loading notes: {error.message}</Text>; // Error
 
-  // Handle "Clear All" button press
+  // "Clear All" button press functionality
   const handleClearAll = async () => {
     setModalVisible(false);
     await deleteAllNotes();
@@ -83,7 +83,7 @@ function HomeScreen({ navigation }) {
           <View style={tw`w-80 p-5 bg-white rounded`}>
             <Text style={tw`text-lg mb-4`}>Are you sure you want to delete all notes?</Text>
             <View style={tw`flex-row justify-end`}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} style={tw`mr-4`} />
+              <Button title="Cancel" onPress={() => setModalVisible(false)} />
               <Button title="Yes" onPress={handleClearAll} />
             </View>
           </View>
@@ -139,7 +139,7 @@ function EditScreen({ route, navigation }) {
     }
   }, []);
 
-  // Delete action
+  // Delete functionality
   const handleDelete = async () => {
     if (note.id) {
       await deleteNote({
@@ -154,6 +154,7 @@ function EditScreen({ route, navigation }) {
       {addError && <Text>Error adding note: {addError.message}</Text>}
       {updateError && <Text>Error updating note: {updateError.message}</Text>}
       {deleteError && <Text>Error deleting note: {deleteError.message}</Text>}
+      {/* Title bar */}
       <TextInput
         style={tw`p-2 mb-4 bg-gray-600 text-white rounded`}
         placeholder="Title"
@@ -161,6 +162,7 @@ function EditScreen({ route, navigation }) {
         value={note.title}
         onChangeText={(text) => setNote((prev) => ({ ...prev, title: text }))}
       />
+      {/* Note content area */}
       <TextInput
         style={tw`p-2 bg-gray-600 text-white rounded`}
         placeholder="Content"
@@ -170,6 +172,7 @@ function EditScreen({ route, navigation }) {
         onChangeText={(text) => setNote((prev) => ({ ...prev, content: text }))}
         ref={contentInputRef}
       />
+      {/* Delete button */}
       <TouchableOpacity
         onPress={handleDelete}
         style={tw`bg-slate-500 rounded-full absolute top-8 right-8 w-12 h-12 items-center justify-center`}
@@ -190,6 +193,7 @@ export default function App() {
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
+          {/* Home header */}
           <Stack.Screen
             name="Notes"
             component={HomeScreen}
@@ -201,6 +205,7 @@ export default function App() {
               headerShadowVisible: false,
             }}
           />
+          {/* Editing header */}
           <Stack.Screen
             name="Edit"
             component={EditScreen}
