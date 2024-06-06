@@ -68,6 +68,7 @@ export const dbApi = createApi({
       },
       invalidatesTags: ['Notes'],
     }),
+    //added from original to implement additional functionality
     deleteAllNotes: build.mutation({
       async queryFn() {
         await AsyncStorage.setItem('notes', JSON.stringify([]));
